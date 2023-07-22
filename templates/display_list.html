@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Currency Values</title>
+</head>
+<body>
+    <div id="refresh"></div>
+    <h1>Currency Values</h1>
+    <table border="1">
+        <tr>
+            <th>Currency</th>
+            <th>Values</th>
+            <th>Base</th>
+        </tr>
+        {% for row in seq %}
+        <tr>
+            <td>{{ row.currency }}</td>
+            <td>{{ row.value }}</td>
+            <td>{{ row.base }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {% if length!=0 %}
+    <div>The following currencies are not supported by the api</div>
+    <table border="1">
+        <tr>
+            <th>Currency</th>
+        </tr>
+        {% for row in not_found_symbol %}
+        <tr>
+            <td>{{ row}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+</body>
+</html>
