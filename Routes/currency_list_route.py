@@ -1,5 +1,3 @@
-import asyncio
-
 from sanic import Blueprint
 
 from Managers.available_currency import available_currency_handler
@@ -30,5 +28,6 @@ async def remove_currency(request):
 
 @currency_list.get("/display-currency")
 async def display_currency(request):
-    response = await display_currency_handler()
+    data = []
+    response = await display_currency_handler(data)
     return response

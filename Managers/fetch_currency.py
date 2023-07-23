@@ -1,6 +1,5 @@
 import asyncio
 import os
-import time
 import aiohttp
 from sanic import Sanic, json, text, redirect
 from dotenv import load_dotenv
@@ -45,10 +44,7 @@ async def asyncio_fetch_currency(symbols, base, interval, not_found_symbol):
                 rates = result['rates']
                 data = []
                 for currency, values in rates.items():
-                    # print(currency, ":", values)
                     data.append({"currency": currency, "value": values, "base": base})
-
-                # print(data)
 
                 await store_dict_list_to_csv('data.csv', data)
 
@@ -70,14 +66,9 @@ async def asyncio_fetch_currency(symbols, base, interval, not_found_symbol):
 
 async def fetch_currency_handler(request):
     try:
-        # print(request)
-        # return text("dvd")
         query_params = request.args
-        # print(query_params)
-        # return text("scdc")
 
         symbols = query_params.get(['symbols'][0], 'USD')
-        # print(symbols)
 
         symbols_list = symbols.split(',')
 
@@ -85,7 +76,7 @@ async def fetch_currency_handler(request):
         for val in symbols_list:
             if val not in currencies:
                 not_found_symbol.append(val)
-        # print(not_found_symbol)
+
         base = query_params.get(['base'][0], 'INR')
 
         if base not in currencies:
@@ -93,14 +84,13 @@ async def fetch_currency_handler(request):
 
         interval = int(query_params.get('interval', 60))
 
-        # print(interval)
-        print("fetch_task gonna start")
+        # print("fetch_task start")
         # data = await asyncio_fetch_currency(symbols, base, interval, not_found_symbol)
         task1 = asyncio.create_task(asyncio_fetch_currency(symbols, base, interval, not_found_symbol))
         # task1 = asyncio.create_task(trial(symbols, base, interval, not_found_symbol))
         # return data
         data = await task1
-        print("fetch_task_end")
+        # print("fetch_task_end")
         return data
 
     except ValueError:

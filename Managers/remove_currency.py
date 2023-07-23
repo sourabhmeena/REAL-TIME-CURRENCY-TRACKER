@@ -17,7 +17,8 @@ class DataNotFoundInCSVError(Exception):
     pass
 
 
-async def delete_csv_row(file_path, key_column, key_value, not_found_symbol):
+async def delete_csv_row(file_path, key_column, key_value):
+
     # Read the CSV file and load its contents into memory
     with open(file_path, 'r') as file:
         reader = csv.DictReader(file)
@@ -32,27 +33,25 @@ async def delete_csv_row(file_path, key_column, key_value, not_found_symbol):
 
     if len(rows_to_delete) == 0:
         return text('You have entered the currency that is not present in the list, kindly try again')
-        # Remove the identified row(s) from the data
+
+    # Remove the identified row(s) from the data
     for row in rows_to_delete:
         data.remove(row)
 
-        # Write the updated data back to the CSV file
+    # Write the updated data back to the CSV file
     with open(file_path, 'w', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=reader.fieldnames)
         writer.writeheader()
         writer.writerows(data)
 
+    not_found_symbol = []
     return await display_currency_handler(not_found_symbol)
 
 
 async def remove_currency_handler(request):
     try:
-        print(request)
-        # return text("dvd")
         query_params = request.args
-        print(query_params)
-        not_found_symbol = []
         currency = query_params['currency'][0]
-        return await delete_csv_row('data.csv', 'currency', currency, not_found_symbol)
+        return await delete_csv_row('data.csv', 'currency', currency)
     except DataNotFoundInCSVError as e:
         return json({'error': str(e)}, status=404)

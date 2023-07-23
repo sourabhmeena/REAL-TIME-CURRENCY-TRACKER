@@ -1,9 +1,11 @@
 
-from sanic import json, Blueprint
-
+from sanic import Blueprint
+from Managers.home_page import *
 home_route__ = Blueprint("home_route__", version=1)
 
 
 @home_route__.get('/')
 def home_page(request):
-    return json({"data": "Welcome to currency tracker, use the /v1/help command to view all the commands"})
+    response = home_page_handler(request)
+    return response
+
