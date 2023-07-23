@@ -1,7 +1,10 @@
+import asyncio
+
 from sanic import Sanic, text, json
 import requests_cache
 from sanic.exceptions import NotFound
-from Routes.root_group import root_group
+from Routes import root_group
+# from Routes.root_group import root_group
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,4 +21,5 @@ async def not_found(request, exception):
 
 
 if __name__ == '__main__':
+
     app.run()

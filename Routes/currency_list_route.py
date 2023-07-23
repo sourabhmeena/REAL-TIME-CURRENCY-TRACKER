@@ -1,3 +1,5 @@
+import asyncio
+
 from sanic import Blueprint
 
 from Managers.available_currency import available_currency_handler
