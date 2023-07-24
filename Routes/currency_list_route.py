@@ -28,6 +28,5 @@ async def remove_currency(request):
 
 @currency_list.get("/display-currency")
 async def display_currency(request):
-    data = []
-    response = await display_currency_handler(data)
+    response = await display_currency_handler()
     return response

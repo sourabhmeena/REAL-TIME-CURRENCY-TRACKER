@@ -17,15 +17,18 @@ class DataNotFoundInCSVError(Exception):
     pass
 
 
-async def delete_csv_row(file_path, key_column, key_value):
+class NoQueryParam(Exception):
+    pass
 
+
+async def delete_csv_row(file_path, key_column, key_value):
     # Read the CSV file and load its contents into memory
     with open(file_path, 'r') as file:
         reader = csv.DictReader(file)
         data = list(reader)
 
     if len(data) == 0:
-        raise DataNotFoundInCSVError('The currency you want to remove is not present in the table')
+        raise DataNotFoundInCSVError('The list is Empty')
 
     # Identify the row(s) that need to be deleted
     rows_to_delete = [row for row in data if row[key_column] == key_value]
@@ -51,7 +54,15 @@ async def delete_csv_row(file_path, key_column, key_value):
 async def remove_currency_handler(request):
     try:
         query_params = request.args
-        currency = query_params['currency'][0]
-        return await delete_csv_row('data.csv', 'currency', currency)
+
+        currency = query_params.get(['currency'][0], '-1')
+
+        if currency != '-1':
+            return await delete_csv_row('data.csv', 'currency', currency)
+        raise NoQueryParam('Kindly enter the currency')
+    except NoQueryParam as e:
+        return json({'error': str(e)}, status=404)
     except DataNotFoundInCSVError as e:
         return json({'error': str(e)}, status=404)
+    except Exception as e:
+        return e

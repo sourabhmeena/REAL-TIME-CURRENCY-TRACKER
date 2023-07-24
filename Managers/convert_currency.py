@@ -17,6 +17,10 @@ class DataNotFoundError(Exception):
     pass
 
 
+class BadRequestException():
+    pass
+
+
 async def asyncio_convert_currency(convert_to, convert_from, amount):
     print("async convert just started")
     try:
@@ -26,6 +30,7 @@ async def asyncio_convert_currency(convert_to, convert_from, amount):
                 result = await response.json()
                 return json({"status-code": 200, "result": result})
     except Exception as e:
+        # raise BadRequestException(e)
         return e
 
 
@@ -36,11 +41,11 @@ async def convert_currency_handler(request):
 
         convert_to = query_params['to'][0]
         if convert_to not in currencies:
-            raise DataNotFoundError('api does not support the currency you want to fetch')
+            raise DataNotFoundError('We do not support the currency you want to fetch')
 
         convert_from = query_params['from'][0]
         if convert_from not in currencies:
-            raise DataNotFoundError('api does not support the currency you want to fetch')
+            raise DataNotFoundError('We do not support the currency you want to fetch')
 
         amount = int(query_params['amount'][0])
 

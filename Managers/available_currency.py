@@ -15,6 +15,7 @@ headers = {
 
 async def fetch_data(request):
     url = "https://api.apilayer.com/exchangerates_data/symbols"
+
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers=headers, data=payload,ssl=False) as response:
             ans = await response.json()

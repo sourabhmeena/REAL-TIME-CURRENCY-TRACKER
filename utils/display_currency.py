@@ -11,7 +11,9 @@ async def read_data_from_csv(filename):
     return data
 
 
-async def display_currency_handler(not_found_symbol):
+async def display_currency_handler(not_found_symbol=None):
+    if not_found_symbol is None:
+        not_found_symbol = []
     data = await read_data_from_csv('data.csv')
     return await render("display_list.html",
                         context={"seq": data, "not_found_symbol": not_found_symbol, "length": len(not_found_symbol)},
