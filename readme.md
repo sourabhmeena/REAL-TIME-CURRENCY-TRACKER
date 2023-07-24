@@ -11,4 +11,4 @@
 # 4. Run the app
 > python3 service.py
 
-# 5. localhost:8000/help for more information
+# 5. localhost:8000/v1/help for more information 

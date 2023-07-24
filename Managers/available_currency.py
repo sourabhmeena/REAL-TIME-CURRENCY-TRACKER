@@ -26,7 +26,7 @@ async def fetch_data(request):
 async def get_data_with_timeout(request):
     try:
         # Set the timeout to 60 seconds
-        data = await asyncio.wait_for(fetch_data(request), timeout=60)
+        data = await asyncio.wait_for(fetch_data(request), timeout=20)
         return data
     except asyncio.TimeoutError:
         raise Exception("Response not received within the timeout period (60 seconds)")

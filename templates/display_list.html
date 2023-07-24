@@ -6,17 +6,17 @@
 <body>
     <div id="refresh"></div>
     <h1>Currency Values</h1>
-    <table border="1">
-        <tr>
-            <th>Currency</th>
-            <th>Values</th>
-            <th>Base</th>
+    <table border="3" style="padding: 10px; margin: 2px;">
+        <tr >
+            <th style="width: 15px;padding: 5px;">Currency</th>
+            <th style="width: 15px;">Values</th>
+            <th style="width: 15px; padding:5px 10px;">Base</th>
         </tr>
         {% for row in seq %}
         <tr>
-            <td>{{ row.currency }}</td>
-            <td>{{ row.value }}</td>
-            <td>{{ row.base }}</td>
+            <td style="text-align: center;">{{ row.currency }}</td>
+            <td style="text-align: center;"> {{ row.value }}</td>
+            <td style="text-align: center;">{{ row.base }}</td>
         </tr>
         {% endfor %}
     </table>

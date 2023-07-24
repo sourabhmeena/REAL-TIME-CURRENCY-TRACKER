@@ -1,12 +1,7 @@
-import asyncio
-
-from sanic import Sanic, text, json
+from sanic import Sanic, text
 import requests_cache
-from sanic.exceptions import NotFound
 from Routes import root_group
-from dotenv import load_dotenv
-
-load_dotenv()
+# from dotenv import load_dotenv
 
 app = Sanic("currency-tracker")
 app.blueprint(root_group)
@@ -14,11 +9,10 @@ app.blueprint(root_group)
 requests_cache.install_cache('demo_cache', backend="redis", expire_after=86400)
 
 
-@app.exception(NotFound)
-async def not_found(request, exception):
-    return text('You entered the wrong URL, kindly check again')
+@app.route("/<path:path>")
+async def catch_all(request, path):
+    return text(f"Oops! The route '{path}' does not exist.", status=404)
 
 
 if __name__ == '__main__':
-
     app.run()

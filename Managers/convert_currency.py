@@ -40,12 +40,11 @@ async def convert_currency_handler(request):
         query_params = request.args
 
         convert_to = query_params['to'][0]
-        if convert_to not in currencies:
+        convert_from = query_params['from'][0]
+
+        if (convert_to or convert_from) not in currencies:
             raise DataNotFoundError('We do not support the currency you want to fetch')
 
-        convert_from = query_params['from'][0]
-        if convert_from not in currencies:
-            raise DataNotFoundError('We do not support the currency you want to fetch')
 
         amount = int(query_params['amount'][0])
 
@@ -63,4 +62,4 @@ async def convert_currency_handler(request):
     except DataNotFoundError as e:
         return json({'error': str(e)}, status=404)
     except Exception as e:
-        return text(f"Error: {str(e)}")
+        return text(f"Error: {str(e)} is not found")

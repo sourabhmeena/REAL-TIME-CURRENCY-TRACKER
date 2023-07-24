@@ -2,15 +2,15 @@ from sanic import Blueprint
 
 from Managers.available_currency import available_currency_handler
 from Managers.remove_currency import remove_currency_handler
-from Managers.fetch_currency import fetch_currency_handler
+from Managers.exchange_rates import exchange_rates_handler
 from utils import *
-
+from sanic.response import text,json
 currency_list = Blueprint("currency-list", version=1)
 
 
-@currency_list.get("/fetch-currency")
-async def fetch_currency(request):
-    response = await fetch_currency_handler(request)
+@currency_list.get("/exchange-rates")
+async def exchange_rates(request):                       #
+    response = await exchange_rates_handler(request)
     return response
 
 

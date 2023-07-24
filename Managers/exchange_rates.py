@@ -41,13 +41,12 @@ async def store_dict_list_to_csv(file_path, dict_list):
             writer.writerow(row)
 
 
-async def asyncio_fetch_currency(symbols, base, interval, not_found_symbol):
+async def asyncio_exchange_rates(symbols, base, interval, not_found_symbol):
     print("async fetch gonna start")
     try:
         url = f"https://api.apilayer.com/exchangerates_data/latest?symbols={symbols}&base={base}"
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=headers, data=payload, ssl=False) as response:
-                print("sdv")
                 result = await response.json()
                 rates = result['rates']
                 data = []
@@ -83,12 +82,11 @@ async def asyncio_fetch_currency(symbols, base, interval, not_found_symbol):
 #         time.sleep(1)
 #
 
-async def fetch_currency_handler(request):
+async def exchange_rates_handler(request):
     try:
         query_params = request.args
 
-        symbols = query_params.get(['symbols'][0], 'USD')
-
+        symbols = query_params.get(['symbols'][0], 'USD').upper()
         symbols_list = symbols.split(',')
         symbols_list = [item.upper() for item in symbols_list]
 
@@ -100,29 +98,21 @@ async def fetch_currency_handler(request):
                 symbols_list.remove(val)
 
         if len(symbols_list) == 0:
-            raise DataNotFoundError('All the currencies you want to fetch are wrong')
+            raise DataNotFoundError('Please provide the correct symbols of the Currencies😇')
 
-        base = query_params.get(['base'][0], 'INR')
-
+        base = query_params.get(['base'][0], 'INR').upper()
+        
         if base not in currencies:
             raise DataNotFoundError('api does not support the base currency you want to send')
 
         interval = int(query_params.get('interval', 20))
 
-        # print("fetch_task start")
-        # data = await asyncio_fetch_currency(symbols, base, interval, not_found_symbol)
-        task1 = asyncio.create_task(asyncio_fetch_currency(symbols, base, interval, not_found_symbol))
-        # schedule.every(10).seconds.do(task1)
-        # scheduler_thread = threading.Thread(target=run_scheduler)
-        # scheduler_thread.start()
-
-        # task1 = asyncio.create_task(trial(symbols, base, interval, not_found_symbol))
-        # return data
+        
+        task1 = asyncio.create_task(asyncio_exchange_rates(symbols, base, interval, not_found_symbol))
         data = await task1
+        # print(data)
         return data
-
-        # res = await display_currency_handler(not_found_symbol)
-        # return html(res)
+    
 
     except ValueError:
         # If 'amount' is not an integer or not provided, handle the error
