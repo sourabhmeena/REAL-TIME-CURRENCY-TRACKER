@@ -4,7 +4,6 @@ from Managers.available_currency import available_currency_handler
 from Managers.remove_currency import remove_currency_handler
 from Managers.exchange_rates import exchange_rates_handler
 from utils import *
-from sanic.response import text,json
 currency_list = Blueprint("currency-list", version=1)
 
 

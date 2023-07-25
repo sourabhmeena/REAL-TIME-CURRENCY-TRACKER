@@ -17,7 +17,7 @@ class DataNotFoundError(Exception):
     pass
 
 
-class BadRequestException():
+class BadRequestException(Exception):
     pass
 
 
@@ -39,14 +39,16 @@ async def convert_currency_handler(request):
 
         query_params = request.args
 
-        convert_to = query_params['to'][0]
-        convert_from = query_params['from'][0]
+        convert_to = query_params['to'][0].upper()
+        convert_from = query_params['from'][0].upper()
 
-        if (convert_to or convert_from) not in currencies:
+        if (convert_to) not in currencies:
             raise DataNotFoundError('We do not support the currency you want to fetch')
 
+        if (convert_from) not in currencies:
+            raise DataNotFoundError('We do not support the currency you want to fetch')
 
-        amount = int(query_params['amount'][0])
+        amount = float(query_params['amount'][0])
 
         # print("convert_currency gonna start")
         task2 = asyncio.create_task(asyncio_convert_currency(convert_to, convert_from, amount))
@@ -58,7 +60,7 @@ async def convert_currency_handler(request):
 
     except ValueError:
         # If 'amount' is not an integer or not provided, handle the error
-        return json({'error': 'amount must be a integer'}, status=400)
+        return json({'error': 'amount must be a integer or float'}, status=400)
     except DataNotFoundError as e:
         return json({'error': str(e)}, status=404)
     except Exception as e:

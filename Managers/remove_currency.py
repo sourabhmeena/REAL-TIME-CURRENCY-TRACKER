@@ -55,8 +55,7 @@ async def remove_currency_handler(request):
     try:
         query_params = request.args
 
-        currency = query_params.get(['currency'][0], '-1')
-
+        currency = query_params.get('currency', '-1').upper()
         if currency != '-1':
             return await delete_csv_row('data.csv', 'currency', currency)
         raise NoQueryParam('Kindly enter the currency')
