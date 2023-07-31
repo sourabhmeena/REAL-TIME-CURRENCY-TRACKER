@@ -1,0 +1,15 @@
+class DataNotFoundError(Exception):
+    pass
+
+class EmptyList(Exception):
+    pass
+
+class DataNotFoundError(Exception):
+    pass
+
+class DataNotFoundInCSVError(Exception):
+    pass
+
+class NoQueryParam(Exception):
+    pass
+
