@@ -2,7 +2,9 @@ from pydantic import BaseModel, validator, Field
 from pydantic_core import PydanticCustomError
 from typing import Optional
 from sanic import json
-class Convert_Currency_Model(BaseModel):
+
+
+class ConvertCurrency(BaseModel):
     from_ : list = Field(..., alias='from')
     to : list
     amount : Optional[list]
@@ -17,7 +19,7 @@ class Convert_Currency_Model(BaseModel):
         if len(to[0]) != 3 :
             raise ValueError(f"{to} is not a Valid Currency")
     
-class Exchange_Rates_Model(BaseModel):
+class ExchangeRates(BaseModel):
     symbols : Optional[list]=['INR']
     base : Optional[list]=['USD']
     interval : Optional[list]=[1]
@@ -33,5 +35,5 @@ class Exchange_Rates_Model(BaseModel):
             raise ValueError('intervel should be between 1 to 60')
 
 
-class Remove_Currency_Model(BaseModel):
-    currency : list 
+class RemoveCurrencyModel(BaseModel):
+    currency : list

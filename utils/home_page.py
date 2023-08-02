@@ -1,6 +1,7 @@
+from sanic_ext import render
 
-from utils import *
+# from utils import *
 
 
-def home_page_handler(request):
-    return render('home.html')
+async def home_page_handler(request):
+    return await render('home.html')

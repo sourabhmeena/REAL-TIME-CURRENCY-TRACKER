@@ -1,89 +1,88 @@
-import asyncio,csv
-from sanic import  json, text, Request,Sanic
-from utils.display_currency import Csv_handler
+import asyncio, csv
+from sanic import json, text, Request, Sanic
+from utils.display_currency import CsvHandler
 from crontab import CronTab
-from models.valid_currency import Valid_Currency
-from .uri_handler import Uri
-from models.response import Exchange_Rates_Model
+from models.valid_currency import ValidCurrency
+from .api import Api
+from models.response import ExchangeRateResponse
 from sanic.exceptions import SanicException
+from exceptions.custom_exceptions import *
 
 payload = {}
 
 
-class DataNotFoundError(Exception):
-    pass
-
-class EmptyList(Exception):
-    pass
-
-class exchange_rates():
+class ExchangeRate:
     # def __init__(self,base_url) -> None:
     #     self.base_url=base_url
 
-    
-    async def cronjob_handler(self, intervel,url):
-        cron=CronTab(user='soruabh.meena') 
-        job=cron.new(command=f'{url}')
+    @classmethod
+    async def cronjob_handler(cls, intervel, url):
+
+        cron = CronTab(user='sourabh.meena')
+        cron.remove_all()
+        job = cron.new(command=f"{url}")
         job.minute.every(intervel)
         cron.write()
 
-    async def asyncio_exchange_rates(self,symbols, base, invalid_symbols):
+
+    @classmethod
+    async def url_for_cron(cls, host, path, valid_symbols, base):
+        currency_for_url = valid_symbols[0]
+        for val in valid_symbols[1:]:
+            currency_for_url = currency_for_url + '%2C' + val
+        return f"curl --location 'http:/{host}{path}?symbols={currency_for_url}&base={base}'"
+
+
+    @classmethod
+    async def exchange(cls, symbols, base, invalid_symbols):
         print("async fetch gonna start")
         try:
             url = f"https://api.apilayer.com/exchangerates_data/latest?symbols={symbols}&base={base}"
+            obj = Api(url)
+            result = await asyncio.wait_for(obj.api_call(payload), timeout=20)
 
-            obj = Uri(url)
-            result = await asyncio.wait_for(obj.apilayer(payload),timeout=20)
             rates = result['rates']
             data = []
             for currency, values in rates.items():
                 data.append({"currency": currency, "value": values, "base": base})
 
-            await Csv_handler.add_in_csv( data)
-            Exchange_Rates_Model(**result)
-            result["invalid_currencies"]=list(invalid_symbols)
-            return json({'status':200,'data':result})
+            await CsvHandler().add_in_csv(data)
+            ExchangeRateResponse(**result)
+            result["invalid_currencies"] = list(invalid_symbols)
+            return json({'status': 200, 'data': result})
         except asyncio.TimeoutError:
-            return  Exception("Response not received within the timeout period (20 seconds)")
+            return Exception("Response not received within the timeout period (20 seconds)")
         except Exception as e:
-            return SanicException(f'error: {e}',status_code=500)
+            return SanicException(f'error: {e}', status_code=400)
 
 
-    
-    async def exchange_rates_handler(self,request: Request):
-        app=Sanic.get_app()
+    @classmethod
+    async def exchange_rates_handler(cls, request: Request):
+        app = Sanic.get_app()
         try:
             query_params = request.args
-            
+
             symbols = query_params.get(['symbols'][0], 'USD').upper()
-            symbols_obj=Valid_Currency(symbols)
-            valid_invalid_symbols = await symbols_obj.currency_list_handler()   # dic= {valid_symbols=[],invalid_symbols=[]}
+            valid_invalid_symbols = await ValidCurrency(symbols).currency_list_handler()  # dic= {valid_symbols=[],invalid_symbols=[]}
+
             base = query_params.get(['base'][0], 'INR').upper()
-            base_obj=Valid_Currency(base)
-            valid_invalid_base = await base_obj.currency_list_handler()
+            valid_invalid_base = await ValidCurrency(base).currency_list_handler()
+
+            interval = int(query_params.get(['interval'][0], 1))
 
             if len(valid_invalid_symbols['valid']) == 0:
-                raise DataNotFoundError('Please provide the correct symbols of the Currencies😇')
-            
-            if len(valid_invalid_base['valid']) ==0 :
-                raise DataNotFoundError(f'api does not support the base  currency ({base}) you want to fatch')
+                raise DataNotFoundError('Please provide the correct symbols of the Currencies😇', status_code=400)
 
-            interval = int(query_params.get('interval', [1])[0])
-        
-            currency_for_url=valid_invalid_symbols['valid'][0]
-            for val in valid_invalid_symbols['valid'][1:]:
-                currency_for_url=currency_for_url+'%2C'+val
-            
-            url_for_scheduling=f"curl --location 'http:/{request.host}{request.path}/?symbols={currency_for_url}&base={base}'"
-            
-            # print(url_for_scheduling)
-            # self.cronjob_handler(interval,url_for_scheduling)
+            if len(valid_invalid_base['valid']) == 0:
+                raise DataNotFoundError(message=f'api does not support the base  currency ({base}) you want to fatch',
+                                        status_code=400)
 
-            task1 = app.add_task(self.asyncio_exchange_rates(symbols, base,valid_invalid_symbols['invalid']))
-            data = await task1
-            return data
-        
+            url_for_scheduling = await cls.url_for_cron(request.host, request.path, valid_invalid_symbols['valid'],
+                                                        base)
+            await cls.cronjob_handler(interval, url_for_scheduling)
+
+            data = app.add_task(cls.exchange(symbols, base, valid_invalid_symbols['invalid']))
+            return await data
 
         except Exception as e:
-            return SanicException(f'error: {str(e)}', status_code=404)
-   
+            return SanicException(f'error: {str(e)}', status_code=400)

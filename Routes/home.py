@@ -6,9 +6,10 @@ home_bp = Blueprint("home_route__", version=1)
 
 
 @home_bp.get("/")
-def home_page(request):
-    response = home_page_handler(request)
+async def home_page(request):
+    response = await home_page_handler(request)
     return response
+
 
 @home_bp.get("/help")
 async def help__(request):
