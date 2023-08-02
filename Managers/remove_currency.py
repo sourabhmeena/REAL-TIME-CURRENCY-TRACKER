@@ -1,29 +1,19 @@
 from sanic import json, text
 from utils.display_currency import CsvHandler
-
-class DataNotFoundInCSVError(Exception):
-    pass
-
-
-class NoQueryParam(Exception):
-    pass
+from exceptions.custom_exceptions import *
 
 
 class RemoveFromCsv:
 
     @classmethod
-    async def remove_currency_handler(self, request):
+    async def remove_currency_handler(cls, request):
         try:
             query_params = request.args
-            
             currency = query_params.get(['currency'][0]).upper()
-
             currency_list = currency.split(',')
-            
-            print(currency_list)
-            for currency in currency_list:
-                await CsvHandler.delete_csv_row('currency', currency)
-            
+            # print(currency_list)
+            await CsvHandler.delete_csv_row('currency', currency_list)
+
             return await CsvHandler.display_currency_handler()
 
         except NoQueryParam as e:

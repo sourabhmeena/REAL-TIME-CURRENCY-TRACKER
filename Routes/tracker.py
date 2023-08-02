@@ -41,7 +41,7 @@ async def exchange(request: Request):
 
 @currency_list.get("/available-currency")
 async def available_currency(request):
-    response = await Available.available_currency_handler(request)
+    response = await Available.available_currency_handler()
     return response
 
 

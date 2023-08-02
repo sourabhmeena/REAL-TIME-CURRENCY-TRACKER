@@ -10,7 +10,7 @@ payload = {}
 class Available:
 
     @classmethod
-    async def fetch_data(cls, request):
+    async def fetch_data(cls):
         url = "https://api.apilayer.com/exchangerates_data/symbols"
         obj = Api(url)
         ans = await obj.cached_api_call(payload)
@@ -23,18 +23,18 @@ class Available:
         return json(data)
 
     @classmethod
-    async def get_data_with_timeout(cls, request):
+    async def get_data(cls, request):
         try:
-            data = await asyncio.wait_for(cls.fetch_data(request), timeout=20)
+            data = await asyncio.wait_for(cls.fetch_data(), timeout=20)
             return data
         except asyncio.TimeoutError:
             raise Exception("Response not received within the timeout period (20 seconds)")
 
     @classmethod
-    async def available_currency_handler(cls, request):
+    async def available_currency_handler(cls):
         app = Sanic.get_app()
         try:
-            task = app.add_task(cls.get_data_with_timeout(request))
+            task = app.add_task(cls.get_data())
             
             data = await task
             return data
