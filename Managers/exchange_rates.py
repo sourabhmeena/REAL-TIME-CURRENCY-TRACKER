@@ -7,6 +7,7 @@ from .api import Api
 from models.response import ExchangeRateResponse
 from sanic.exceptions import SanicException
 from exceptions.custom_exceptions import *
+from constants.url import *
 
 payload = {}
 
@@ -24,7 +25,6 @@ class ExchangeRate:
         job.minute.every(intervel)
         cron.write()
 
-
     @classmethod
     async def url_for_cron(cls, host, path, valid_symbols, base):
         currency_for_url = valid_symbols[0]
@@ -32,12 +32,12 @@ class ExchangeRate:
             currency_for_url = currency_for_url + '%2C' + val
         return f"curl --location 'http:/{host}{path}?symbols={currency_for_url}&base={base}'"
 
-
     @classmethod
     async def exchange(cls, symbols, base, invalid_symbols):
         print("async fetch gonna start")
         try:
-            url = f"https://api.apilayer.com/exchangerates_data/latest?symbols={symbols}&base={base}"
+            # url = f"https://api.apilayer.com/exchangerates_data/latest?symbols={symbols}&base={base}"
+            url = Urls.exchange_rates.value.format(symbols, base)
             obj = Api(url)
             result = await asyncio.wait_for(obj.api_call(payload), timeout=20)
 
@@ -55,7 +55,6 @@ class ExchangeRate:
         except Exception as e:
             return SanicException(f'error: {e}', status_code=400)
 
-
     @classmethod
     async def exchange_rates_handler(cls, request: Request):
         app = Sanic.get_app()
@@ -63,7 +62,8 @@ class ExchangeRate:
             query_params = request.args
 
             symbols = query_params.get(['symbols'][0], 'USD').upper()
-            valid_invalid_symbols = await ValidCurrency(symbols).currency_list_handler()  # dic= {valid_symbols=[],invalid_symbols=[]}
+            valid_invalid_symbols = await ValidCurrency(
+                symbols).currency_list_handler()  # dic= {valid_symbols=[],invalid_symbols=[]}
 
             base = query_params.get(['base'][0], 'INR').upper()
             valid_invalid_base = await ValidCurrency(base).currency_list_handler()

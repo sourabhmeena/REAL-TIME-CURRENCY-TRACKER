@@ -29,7 +29,7 @@ async def convert_currency(request: Request):
 @currency_list.get("/exchange-rates")
 async def exchange(request: Request):
     '''
-        take input {symbol= country_list , Base= Base_currency and intervel }
+        take input {symbol= country_list , Base= Base_currency , interval }
     '''
     try:
         ExchangeRates(**request.args)
@@ -41,7 +41,7 @@ async def exchange(request: Request):
 
 @currency_list.get("/available-currency")
 async def available_currency(request):
-    response = await Available.available_currency_handler()
+    response = await Available.available_currency_handler(request)
     return response
 
 

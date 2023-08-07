@@ -1,15 +1,16 @@
 from sanic import json
 from managers.api import Api
 from crontab import CronTab
+from constants.url import *
 
 
 class Listener:
-    def __init__(self, app) -> None:
+    def __init__(self, app,loop) -> None:
         self.app = app
-        # self.loop = loop
+        self.loop = loop
 
     async def check_api(self):
-        available_url = "https://api.apilayer.com/exchangerates_data/symbols"
+        available_url = Urls.available_currency.value
         obj = Api(available_url)
         res = await obj.api_call()
         if not res.get('success'):

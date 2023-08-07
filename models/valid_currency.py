@@ -6,7 +6,7 @@ class ValidCurrency:
         self.currency_list = currency_list
 
     async def currency_list_handler(self):
-
+        # list -> valid and invalid
         symbols_list = self.currency_list.split(',')
         symbols_list = [item.upper() for item in symbols_list]
         invalid_symbols, valid_symbols = set(), set()

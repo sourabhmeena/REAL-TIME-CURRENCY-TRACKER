@@ -17,7 +17,7 @@ class CsvHandler:
                 await asyncio.gather(*[writer.writerow(row) for row in dict_list])
         else:
             async with aiofiles.open('data.csv', 'w', newline='') as file:
-                pass
+                pass  
 
     @classmethod
     async def delete_csv_row(cls, column_name, countries):

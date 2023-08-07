@@ -10,11 +10,11 @@ app = Sanic("currency-tracker")
 app.blueprint(root_group)
 
 
-# @app.listener("before_server_start")
-# async def listener_(app):
-#     obj = Listener(app)
-#     await obj.check_api()
-#     await obj.clear_crontab()
+@app.listener("before_server_start")
+async def listener_(app,loop):
+    obj = Listener(app,loop)
+    await obj.check_api()
+    await obj.clear_crontab()
 
 
 @app.route("/<path:path>")

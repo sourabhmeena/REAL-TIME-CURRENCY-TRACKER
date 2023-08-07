@@ -4,6 +4,7 @@ from models.valid_currency import ValidCurrency
 from .api import Api
 from models.response import ConvertCurrency
 from sanic.exceptions import SanicException
+from constants.url import *
 
 
 class Convert:
@@ -11,7 +12,7 @@ class Convert:
     async def conversion(cls, convert_to, convert_from, amount):
         print("async convert just started")
         try:
-            url = f"https://api.apilayer.com/exchangerates_data/convert?to={convert_to}&from={convert_from}&amount={amount}"
+            url = Urls.convert_currency.value.format(convert_to, convert_from, amount)
             obj = Api(url)
             result = await obj.api_call()
             ConvertCurrency(**result)
@@ -33,7 +34,7 @@ class Convert:
             convert_to, convert_from = await asyncio.gather(*[to_task, from_task], return_exceptions=True)
 
             if len(convert_to['valid']) == 0:
-                raise SanicException(f'We do not support the currency {convert_to["invalid"]} you want to fetch',
+                raise SanicException(message=f'We do not support the currency {convert_to["invalid"]} you want to fetch',
                                      status_code=400)
 
             if len(convert_from['valid']) == 0:
